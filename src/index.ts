@@ -15,8 +15,7 @@ async function getJokes() {
 
 getJokes();
 
-// 2.2
-
+// 2.2 возвращает ваш айпи
 const urlTask_2: string = 'https://api.ipify.org/?format=json';
 
 async function getMyIp(URL: string): Promise<string> {
@@ -29,7 +28,6 @@ async function getMyIp(URL: string): Promise<string> {
 getMyIp(urlTask_2).then(function (response: string) {
     console.log('Result 2.2-', response);
 }).catch(e => console.log("fail"));
-
 // 2.3.1
 (function () {
     interface ItemplateResp {
@@ -61,7 +59,7 @@ getMyIp(urlTask_2).then(function (response: string) {
     ;
 }());
 
-// 2.3.2
+// 2.3.2 async/await + Promise.all
 (function () {
     interface ItemplateResp {
         first_name: string
@@ -86,7 +84,7 @@ getMyIp(urlTask_2).then(function (response: string) {
     }).catch(e => console.log("fail"));
 }());
 
-// 2.3.3
+// 2.3.3 без async/await, but без Promise.all
 (function () {
     interface ItemplateResp {
         first_name: string
@@ -124,34 +122,86 @@ getMyIp(urlTask_2).then(function (response: string) {
     }).catch(e => console.log("fail", e));
 }());
 
-// 2.4.1
+// 2.4.1 без async/await
 (function () {
     const urlTask_4: string = 'https://random-data-api.com/api/users/random_user';
     let i = 0;
-    function getNames(URL: string) {
-        return new Promise(resolve => {
-            const p = fetch(URL).then(response => {
+
+    function getNames(URL: string): Promise<string> {
+        return new Promise(function (resolve, reject) {
+            const p: Promise<void | Response> = fetch(URL).then(response => {
                 return response.json();
             }).then(parsedData => {
                 console.log(`${i}-`, parsedData.gender);
                 i++;
                 if (parsedData.gender === "Female") {
                     resolve(parsedData.gender);
-                } else getNames(URL);
+                } else resolve(getNames(URL));
             });
         });
     }
 
-    getNames(urlTask_4).then(function (response) {
+    getNames(urlTask_4).then(function (response: string) {
         console.log('Result 2.4.1-', response);
     });
 }());
 
-/*app.get('/', (req: Request, res: Response) => {
+// 2.4.2 с async/await
+(async function () {
+    const urlTask_4: string = 'https://random-data-api.com/api/users/random_user';
+    let i = 0;
 
-})*/
-/*app.listen(port, () => {
-    console.log(`Example MYapp listening on port ${port}`)
-})*/
+    async function getNames(URL: string): Promise<string> {
+        const response: Response = await fetch(URL);
+        const jsonResp = await response.json();
+        console.log(`${i++}-`, jsonResp.gender);
+        return jsonResp.gender === "Female" ? (jsonResp.gender) : getNames(URL);
+    }
+
+    const response: string = await getNames(urlTask_4);
+    console.log('Result 2.4.1-', response);
+
+}());
+
+// 2.5
+(async function () {
+    function getCurrentIP(callback: (ip: string) => string): Promise<string> {
+        return new Promise(function (resolve) {
+            setTimeout(() => {
+                const currentIP = '192.168.0.1';
+                resolve(callback(currentIP));
+            }, 1000);
+        });
+    }
+
+    function futureCallback(ip: string): string {
+        return 'My-Ip:' + ip;
+    }
+
+    const response: string = await getCurrentIP(futureCallback);
+    console.log('Result 2.5-', response);
+}());
+// 2.6
+(async function () {
+    const urlTask_2: string = 'https://api.ipify.org/?format=json';
+    async function getMyIp1(URL: string): Promise<string> {
+        const response = await fetch(URL);
+        const data = await response.json();
+        return data && data.ip;
+    }
+
+    async function getCurrentIP2(callback: (ip: string) => string) {
+        const response: string = await getMyIp1(urlTask_2);
+        return new Promise(function (resolve,reject) {
+            resolve(callback(response));
+        });
+    }
+
+    function futureCallback(ip: string): string {
+       return `I am Callback, first param- ${ip}`;
+    }
+    console.log('Result 2.6-', await getCurrentIP2(futureCallback));
+}());
+
 
 
