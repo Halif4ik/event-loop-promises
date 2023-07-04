@@ -95,7 +95,7 @@ getMyIp(urlTask_2).then(function (response: string) {
 
     const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
 
-    function getNames(URL: string) {
+    function getNames(URL: string): Promise<any> {
         const first = fetch(URL).then(response => {
             return response.json();
         });
@@ -116,13 +116,36 @@ getMyIp(urlTask_2).then(function (response: string) {
                 arrResp.push(parsedData.first_name);
                 if (arrResp.length === 3) resolve(arrResp);
             });
-        })
+        });
     }
+
     getNames(urlTask_3).then(function (response) {
         console.log('Result 2.3.3-', response[0], response[1], response[2]);
     }).catch(e => console.log("fail", e));
 }());
 
+// 2.4.1
+(function () {
+    const urlTask_4: string = 'https://random-data-api.com/api/users/random_user';
+    let i = 0;
+    function getNames(URL: string) {
+        return new Promise(resolve => {
+            const p = fetch(URL).then(response => {
+                return response.json();
+            }).then(parsedData => {
+                console.log(`${i}-`, parsedData.gender);
+                i++;
+                if (parsedData.gender === "Female") {
+                    resolve(parsedData.gender);
+                } else getNames(URL);
+            });
+        });
+    }
+
+    getNames(urlTask_4).then(function (response) {
+        console.log('Result 2.4.1-', response);
+    });
+}());
 
 /*app.get('/', (req: Request, res: Response) => {
 
