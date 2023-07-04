@@ -3,7 +3,6 @@ import express from 'express'
 
 const app = express()
 const port: number = 3000;
-
 // 2.1 node-fetch чтобы make request await fetch
 const urlTask_1: string = 'https://jokes-by-api-ninjas.p.rapidapi.com/v1/jokes';
 
@@ -96,22 +95,48 @@ getMyIp(urlTask_2).then(function (response: string) {
 
     const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
 
-    function getNames(URL: string): Promise<string[]> {
-        return new Promise(function (resolve, reject) {
-            /*const response = [];*/
-            const response = fetch(URL);
-            console.log('response-',response);
-            /*const first = response[0].json() as ItemplateResp;
-            const sec = response[1].json() as ItemplateResp;
-            const third = response[2].json() as ItemplateResp;*/
-            resolve(response)
-            /*resolve([first && first.first_name, sec && sec.first_name, third && third.first_name]);*/
+    function getNames(URL: string) {
+        const arrResp: Response[] = [];
+        const first = fetch(URL).then(response => {
+            const parsedResponse = response;
+            arrResp.push(parsedResponse)
+            console.log('***-',arrResp[0]);
+            return  parsedResponse;
         });
+        const sec = fetch(URL).then(response => {
+            return response.json();
+        });
+        const third = fetch(URL).then(response => {
+            return response.json();
+        });
+        console.log('!-',first);
+        console.log('//-',arrResp[0]);
+
+        first.then(parsedData => {
+          parsedData.json().then(parsedData=>{console.log('first', parsedData.first_name)})
+        });
+        sec.then(parsedData => {
+            console.log('sec', parsedData.first_name);
+        });
+        third.then(parsedData => {
+            console.log('third', parsedData.first_name);
+        });
+
+        /* let makeIteration = true;
+         setTimeout(function () {
+             console.log('setTimeout8000');
+             makeIteration = false;
+         }, 8000);
+
+         while (makeIteration) if (result.length > 2) break;
+         if (result.length > 2) resolve(result)
+         else throw new Error("o_O");*/
+
     }
 
-    getNames(urlTask_3).then(function (response) {
+    getNames(urlTask_3)/*.then(function (response) {
         console.log('Result 2.3.3-', response);
-    }).catch(e => console.log("fail", e));
+    }).catch(e => console.log("fail", e));*/
 }());
 
 
