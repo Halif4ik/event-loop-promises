@@ -96,47 +96,31 @@ getMyIp(urlTask_2).then(function (response: string) {
     const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
 
     function getNames(URL: string) {
-        const arrResp: Response[] = [];
         const first = fetch(URL).then(response => {
-            const parsedResponse = response;
-            arrResp.push(parsedResponse)
-            console.log('***-',arrResp[0]);
-            return  parsedResponse;
-        });
-        const sec = fetch(URL).then(response => {
             return response.json();
         });
-        const third = fetch(URL).then(response => {
-            return response.json();
-        });
-        console.log('!-',first);
-        console.log('//-',arrResp[0]);
+        const sec = fetch(URL).then(response => response.json());
+        const third = fetch(URL).then(response => response.json());
 
-        first.then(parsedData => {
-          parsedData.json().then(parsedData=>{console.log('first', parsedData.first_name)})
-        });
-        sec.then(parsedData => {
-            console.log('sec', parsedData.first_name);
-        });
-        third.then(parsedData => {
-            console.log('third', parsedData.first_name);
-        });
-
-        /* let makeIteration = true;
-         setTimeout(function () {
-             console.log('setTimeout8000');
-             makeIteration = false;
-         }, 8000);
-
-         while (makeIteration) if (result.length > 2) break;
-         if (result.length > 2) resolve(result)
-         else throw new Error("o_O");*/
-
+        return new Promise(function (resolve, reject) {
+            const arrResp: Response[] = [];
+            first.then(parsedData => {
+                arrResp.push(parsedData.first_name)
+                if (arrResp.length === 3) resolve(arrResp);
+            });
+            sec.then(parsedData => {
+                arrResp.push(parsedData.first_name);
+                if (arrResp.length === 3) resolve(arrResp);
+            });
+            third.then(parsedData => {
+                arrResp.push(parsedData.first_name);
+                if (arrResp.length === 3) resolve(arrResp);
+            });
+        })
     }
-
-    getNames(urlTask_3)/*.then(function (response) {
-        console.log('Result 2.3.3-', response);
-    }).catch(e => console.log("fail", e));*/
+    getNames(urlTask_3).then(function (response) {
+        console.log('Result 2.3.3-', response[0], response[1], response[2]);
+    }).catch(e => console.log("fail", e));
 }());
 
 
