@@ -1,86 +1,125 @@
-import express, {Request, Response} from 'express'
-import fetch from 'node-fetch';
+import fetch, {Response} from 'node-fetch';
+import express from 'express'
 
 const app = express()
-const port = 3000
+const port: number = 3000;
 
-app.get('/', (req: Request, res: Response) => {
-   /* const dataSourceUrl = 'https://api.ipify.org/?format=json';
-    let sixTask: string
+// 2.1 node-fetch чтобы make request await fetch
+const urlTask_1: string = 'https://jokes-by-api-ninjas.p.rapidapi.com/v1/jokes';
 
-    async function world(a: number): Promise<string> {
-        const url1 = 'https://jokes-by-api-ninjas.p.rapidapi.com/v1/jokes';
-        const url = 'https://feeds.datafeedwatch.com/61736/abdd76f2e6bfde1eb3d3d48c82182138ca8643b6.json';
-      /!*  const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': '7bbacf0e59msh8ca84c2a43e822ap1ebd8djsnc590f2b7b745',
-                'X-RapidAPI-Host': 'jokes-by-api-ninjas.p.rapidapi.com'
-            }
-        };*!/
+async function getJokes() {
+    const response = await fetch(urlTask_1);
+    const data = await response.text();
+    console.log('Result 2.1-', data);
+    return data;
+}
 
-        try {
-            const response = await fetch(url);
-            const result = await response.json();
-            return result.toString()
-        } catch (error) {
-            console.error(error);
+getJokes();
+
+// 2.2
+
+const urlTask_2: string = 'https://api.ipify.org/?format=json';
+
+async function getMyIp(URL: string): Promise<string> {
+    const response = await fetch(URL);
+    const data = await response.json();
+    return data && data.ip;
+}
+
+/*const tempProm: string = await getMyIp(urlTask_2);*/
+getMyIp(urlTask_2).then(function (response: string) {
+    console.log('Result 2.2-', response);
+}).catch(e => console.log("fail"));
+
+// 2.3.1
+(function () {
+    interface ItemplateResp {
+        first_name: string
+        name?: string
+    }
+
+    const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
+
+    async function getNames(URL: string): Promise<string[]> {
+        const arrResponses = await Promise.all([
+            fetch(URL),
+            fetch(URL),
+            fetch(URL),
+        ]);
+        let first = await arrResponses[0].json() as ItemplateResp;
+        const sec = await arrResponses[1].json() as ItemplateResp;
+        const third = await arrResponses[2].json() as ItemplateResp;
+        /*let {first, sec, third} = arrResponses;
+        first = arrResponses[0].json().first_name;
+        sec = sec.json().first_name;
+        third = third.json().first_name;*/
+        return [first && first.first_name, sec && sec.first_name, third && third.first_name];
+    }
+
+    getNames(urlTask_3).then(function (response: string[]) {
+        console.log('Result 2.3.1-', response[0], response[1], response[2],);
+    }).catch(e => console.log("fail"));
+    ;
+}());
+
+// 2.3.2
+(function () {
+    interface ItemplateResp {
+        first_name: string
+        name?: string
+    }
+
+    const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
+
+    async function getNames(URL: string): Promise<string[]> {
+        let response: Response[] = [];
+        for (let i = 0; i < 3; i++) {
+            response.push(await fetch(URL));
         }
-
-        return "*".repeat(a)
-    }
-    const hello = async (): Promise<string> => {
-        const tempProm: string = await world(10);
-        console.log(typeof tempProm);
-        return tempProm
+        const first = await response[0].json() as ItemplateResp;
+        const sec = await response[1].json() as ItemplateResp;
+        const third = await response[2].json() as ItemplateResp;
+        return [first && first.first_name, sec && sec.first_name, third && third.first_name];
     }
 
-    hello().then(function (response: string) {
-        sixTask = `6LAST ${response} `;
-        res.send([ sixTask]);
-        return console.log(response)
-    }).catch(e => console.log("fail"));*/
-      /*fetch('https://feeds.datafeedwatch.com/61736/abdd76f2e6bfde1eb3d3d48c82182138ca8643b6.json')
-            .then(res => {
-                    const response = res.json();
-                    console.log(typeof response);
-                    console.log( 'response-',response);
-                    return response;
-                }
-            ).then(response=>{
-            console.log(typeof response);
-            console.log( 'response-',response.products[0]);
-        });*/
-    const url: string = 'https://jokes-by-api-ninjas.p.rapidapi.com/v1/jokes';
-    interface IAPIOptions {
-        method: string;
-        headers: {
-            'X-RapidAPI-Key': string;
-            'X-RapidAPI-Host': string;
-        };
+    getNames(urlTask_3).then(function (response: string[]) {
+        console.log('Result 2.3.2-', response[0], response[1], response[2],);
+    }).catch(e => console.log("fail"));
+}());
+
+// 2.3.3
+(function () {
+    interface ItemplateResp {
+        first_name: string
+        name?: string
     }
-    const options: IAPIOptions = {
-        method: 'GET',
-        headers: {
-            'X-RapidAPI-Key': '7bbacf0e59msh8ca84c2a43e822ap1ebd8djsnc590f2b7b745',
-            'X-RapidAPI-Host': 'jokes-by-api-ninjas.p.rapidapi.com',
-        },
-    };
-    async function getJokes() {
-        try {
-            const response = await fetch(url, options);
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            console.error('Error:', error);
-        }
+
+    const urlTask_3: string = 'https://random-data-api.com/api/name/random_name';
+
+    function getNames(URL: string): Promise<string[]> {
+        return new Promise(function (resolve, reject) {
+            /*const response = [];*/
+            const response = fetch(URL);
+            console.log('response-',response);
+            /*const first = response[0].json() as ItemplateResp;
+            const sec = response[1].json() as ItemplateResp;
+            const third = response[2].json() as ItemplateResp;*/
+            resolve(response)
+            /*resolve([first && first.first_name, sec && sec.first_name, third && third.first_name]);*/
+        });
     }
-    getJokes();
+
+    getNames(urlTask_3).then(function (response) {
+        console.log('Result 2.3.3-', response);
+    }).catch(e => console.log("fail", e));
+}());
 
 
-})
+/*app.get('/', (req: Request, res: Response) => {
 
-app.listen(port, () => {
+})*/
+/*app.listen(port, () => {
     console.log(`Example MYapp listening on port ${port}`)
-})
+})*/
+
 
